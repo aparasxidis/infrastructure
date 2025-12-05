@@ -17,4 +17,3 @@ spec:
   type: library
   lifecycle: production
   owner: user:guest
-  system: aws-platform
