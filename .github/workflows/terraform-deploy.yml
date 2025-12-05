@@ -1,0 +1,31 @@
+name: Terraform pipeline
+
+on:
+  workflow_dispatch: 
+    inputs:
+      s3name:
+        description: 'Name of s3 bucket'
+        required: true
+      acl:
+        description: 'ACL'
+        required: true
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+jobs:
+  apply_s3:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout codigo
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform apply
+      run: terraform apply -auto-approve -var s3name=${{ github.event.inputs.s3name }} -var acl=${{ github.event.inputs.acl }}
