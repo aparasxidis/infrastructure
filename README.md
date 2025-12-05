@@ -1,13 +1,12 @@
 # AWS S3 Bucket Infrastructure
 
-This Terraform configuration creates an AWS S3 bucket with security best practices and optional features.
+This Terraform configuration creates an AWS S3 bucket with configurable access control following the blog pattern from AWS Español.
 
 ## Features
 
-- ✅ **Secure S3 Bucket**: Public access blocked by default
+- ✅ **Configurable S3 Bucket**: Supports private and public access configurations
 - ✅ **Server-side Encryption**: AES256 encryption enabled
-- ✅ **Versioning Support**: Optional bucket versioning
-- ✅ **Lifecycle Management**: Automatic cleanup of old versions
+- ✅ **Flexible ACL**: Choose between private, public-read, or public-read-write
 - ✅ **Resource Tagging**: Consistent tagging strategy
 - ✅ **Random Suffix**: Ensures globally unique bucket names
 
@@ -29,10 +28,8 @@ This Terraform configuration creates an AWS S3 bucket with security best practic
 2. **Edit Configuration**
    ```bash
    # Edit terraform.tfvars with your values
-   project_name = "your-project-name"
-   environment  = "dev"
-   owner_email  = "your-email@domain.com"
-   aws_region   = "us-east-1"
+   s3name = "my-bucket"
+   acl    = "private"
    ```
 
 3. **Deploy Infrastructure**
@@ -51,13 +48,8 @@ This Terraform configuration creates an AWS S3 bucket with security best practic
 
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
-| `aws_region` | AWS region for resources | `us-east-1` | No |
-| `project_name` | Project name (used in naming) | - | **Yes** |
-| `environment` | Environment (dev/staging/prod) | `dev` | No |
-| `owner_email` | Project owner email | - | **Yes** |
-| `enable_versioning` | Enable S3 versioning | `true` | No |
-| `enable_lifecycle` | Enable lifecycle management | `true` | No |
-| `lifecycle_days` | Days before old versions expire | `30` | No |
+| `s3name` | Unique name for S3 bucket | - | **Yes** |
+| `acl` | Access control (private/public-read/public-read-write) | `private` | No |
 
 ## Outputs
 
@@ -65,18 +57,20 @@ After successful deployment, you'll receive:
 
 - **S3 Bucket Name**: The actual bucket name with random suffix
 - **S3 Bucket ARN**: Amazon Resource Name for the bucket
-- **S3 Bucket Region**: Region where bucket was created
-- **Project Information**: Summary of configuration used
+- **S3 Bucket Region**: Region where bucket was created (us-east-1)
+- **S3 Bucket ACL**: Access control configuration applied
 
 ## Security Features
 
-- **Public Access Blocked**: All public access is blocked by default
+- **Smart Public Access**: Public access blocked only for private buckets
 - **Encryption at Rest**: AES256 server-side encryption
 - **Resource Tagging**: Consistent tags for cost tracking and management
-- **Lifecycle Policies**: Automatic cleanup to reduce storage costs
+- **Flexible Access Control**: Configure access level based on use case
 
 ## AWS User Group Ensenada
 
 This infrastructure template is part of the AWS User Group Ensenada learning materials, demonstrating Infrastructure as Code best practices with Terraform and AWS.
+
+**Blog Reference**: [Desplegando infraestructura en AWS desde Backstage](https://dev.to/aws-espanol/desplegando-infraestructura-en-aws-desde-backstage-1aml)
 
 For questions or support, contact: **AWS User Group Ensenada**

@@ -23,12 +23,16 @@ output "s3_bucket_hosted_zone_id" {
   value       = aws_s3_bucket.app_bucket.hosted_zone_id
 }
 
+output "s3_bucket_acl" {
+  description = "ACL configuration of the S3 bucket"
+  value       = var.acl
+}
+
 output "project_info" {
   description = "Project information"
   value = {
-    project_name = var.project_name
-    environment  = var.environment
-    owner        = var.owner_email
-    region       = var.aws_region
+    s3name = var.s3name
+    acl    = var.acl
+    region = "us-east-1"
   }
 }

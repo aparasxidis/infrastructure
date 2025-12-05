@@ -9,34 +9,49 @@ terraform {
 }
 
 provider "aws" {
-  region = var.aws_region
+  region = "us-east-1"
   
   default_tags {
     tags = {
-      Environment   = var.environment
-      Project       = var.project_name
+      Project       = var.s3name
       ManagedBy     = "Terraform"
       CreatedBy     = "Backstage-Template"
-      Owner         = var.owner_email
     }
   }
 }
 
 # S3 Bucket for application storage
 resource "aws_s3_bucket" "app_bucket" {
-  bucket = "${var.project_name}-${var.environment}-${random_id.bucket_suffix.hex}"
+  bucket = "${var.s3name}-${random_id.bucket_suffix.hex}"
 }
 
 resource "random_id" "bucket_suffix" {
   byte_length = 4
 }
 
-# S3 Bucket Versioning
-resource "aws_s3_bucket_versioning" "app_bucket_versioning" {
+# S3 Bucket ACL
+resource "aws_s3_bucket_acl" "app_bucket_acl" {
+  depends_on = [aws_s3_bucket_ownership_controls.app_bucket_acl_ownership]
   bucket = aws_s3_bucket.app_bucket.id
-  versioning_configuration {
-    status = var.enable_versioning ? "Enabled" : "Suspended"
+  acl    = var.acl
+}
+
+resource "aws_s3_bucket_ownership_controls" "app_bucket_acl_ownership" {
+  bucket = aws_s3_bucket.app_bucket.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
   }
+}
+
+# S3 Bucket Public Access Block (only if ACL is private)
+resource "aws_s3_bucket_public_access_block" "app_bucket_pab" {
+  count  = var.acl == "private" ? 1 : 0
+  bucket = aws_s3_bucket.app_bucket.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
 # S3 Bucket Server Side Encryption
@@ -48,34 +63,5 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "app_bucket_encryp
       sse_algorithm = "AES256"
     }
     bucket_key_enabled = true
-  }
-}
-
-# S3 Bucket Public Access Block
-resource "aws_s3_bucket_public_access_block" "app_bucket_pab" {
-  bucket = aws_s3_bucket.app_bucket.id
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
-
-# S3 Bucket Lifecycle Configuration
-resource "aws_s3_bucket_lifecycle_configuration" "app_bucket_lifecycle" {
-  count  = var.enable_lifecycle ? 1 : 0
-  bucket = aws_s3_bucket.app_bucket.id
-
-  rule {
-    id     = "delete_old_versions"
-    status = "Enabled"
-
-    noncurrent_version_expiration {
-      noncurrent_days = var.lifecycle_days
-    }
-
-    abort_incomplete_multipart_upload {
-      days_after_initiation = 7
-    }
   }
 }
