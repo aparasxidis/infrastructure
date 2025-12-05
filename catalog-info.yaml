@@ -1,0 +1,20 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: "aws-infrastructure"
+  title: "AWS Infrastructure Templates"
+  description: "Terraform infrastructure templates for AWS resource deployment"
+  annotations:
+    github.com/project-slug: aparasxidis/infrastructure
+    backstage.io/techdocs-ref: url:https://github.com/aparasxidis/infrastructure
+  tags:
+    - aws
+    - terraform
+    - infrastructure
+    - s3
+    - iac
+spec:
+  type: library
+  lifecycle: production
+  owner: user:guest
+  system: aws-platform
